@@ -4,17 +4,10 @@
 </head>
 <style>
     body {
-      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-      background-color: #036;      
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;   
     }
     #routePlusUser {
-      width: 90%;
-      height: 90%;
       background-color: white;
-      margin-top: 50px;
-      margin-left: 25px;
-      margin-right: 25px;
-      padding: 25px;
     }
     #allContainer {
       width: 35%;
@@ -109,8 +102,6 @@
 </style>
 <body onload="doOnLoad();">
 <div id="routePlusUser">
-    <h1>RoutePlus Settings</h1>
-    <div><button onclick="goCancel();">Go Back</button></div>
     <div id="myCompC">
         <span class="iheader">My Computer:</span> 
         <span id="myComp"></span> 
@@ -147,26 +138,15 @@ protoOpts += '<option value="other">Other</option>';
 var nodeMap = {};
 
 function doOnLoad() {
-    try { 
-        if (nodes == null) { 
-            alert('Page reloaded and data lost.');
-            goCancel();
-            return;
-        }
-    } catch (e) {
-        alert('Page reloaded and data lost.');
-        goCancel();
-        return;
-    }
-    nodes.forEach(function(n) {
+    parent.nodes.forEach(function(n) {
         nodeMap[n._id] = n;
     });
     updateNodesTable();
     updateSelTable();
     updateMyComputer();
 }
-function goCancel() {
-    window.close();
+parent.pluginHandler.routeplus.myComputerUpdate = function(state, msg) {
+    loadMyComputer(msg);
 }
 function loadMyComputer(msg) {
     myComputer = msg.data;
@@ -187,23 +167,52 @@ function setMyComputer(el) {
         port = row.querySelectorAll('.otherInp')[0], 
         proto = row.querySelectorAll('.protoSel')[0],
         nodeId = row.getAttribute('x-data-id');
-    window.opener.pluginHandler.routeplus.setMyComputer( { node: nodeId } );
+    parent.meshserver.send({
+        'action': 'plugin',
+        'plugin': 'routeplus',
+        'pluginaction': 'setMyComputer',
+        'user': parent.userinfo._id,
+        'node': nodeId
+    });
 }
 function addMap(el) {
     if (myComputer == null) {
-        alert("You must first set a computer as your own before adding a map.");
+        parent.setDialogMode(2, "Oops!", 1, null, "You must first set a computer as your own before adding a map."); 
         return;
     }
     var row = el.parentNode.parentNode, 
         port = row.querySelectorAll('.otherInp')[0], 
         proto = row.querySelectorAll('.protoSel')[0],
         nodeId = row.getAttribute('x-data-id');
-    window.opener.pluginHandler.routeplus.addMap( { toNode: nodeId, port: port.value } );
+    if (proto.value == '') {
+        parent.setDialogMode(2, "Oops!", 1, null, "Please select a protocol/port to map."); 
+        return;
+    }
+    parent.meshserver.send({
+        'action': 'plugin',
+        'plugin': 'routeplus',
+        'pluginaction': 'addMap',
+        'user': parent.userinfo._id,
+        'toNode': nodeId,
+        'port': port.value
+    });
 }
+
+parent.pluginHandler.routeplus.mapUpdate = function(state, msg) {
+    loadMappings(msg);
+};
 function removeMap(el) {
     var row = el.parentNode.parentNode, 
         nodeId = row.getAttribute('x-data-id');
-    window.opener.pluginHandler.routeplus.removeMap( nodeId );
+    if (nodeId != null) {
+        parent.meshserver.send({
+            'action': 'plugin',
+            'plugin': 'routeplus',
+            'pluginaction': 'removeMap',
+            'id': nodeId,
+            'user': parent.userinfo._id
+        });
+    }
 }
 function loadMappings(msg) {
     mappings = msg.data;
@@ -220,6 +229,10 @@ function protoChange(el) {
         port.value = el.value;
     }
 }
+function resizeIframe() { 
+    document.body.style.height = 100;
+    parent.pluginHandler.routeplus.resizeContent();
+}
 function updateNodesTable() {
   let dRows = document.querySelectorAll('.nodeRow');
   dRows.forEach((r) => {
@@ -227,10 +240,10 @@ function updateNodesTable() {
   });
   
   var nodeTbl = document.querySelector('#nodeTbl');
-  nodes.forEach(function(i) {
+  parent.nodes.forEach(function(i) {
       var item = {...i, ...{}};
       if (item.mtype == 2) {
-          item.meshName = meshes[item['meshid']].name;
+          item.meshName = parent.meshes[item['meshid']].name;
           let tpl = `<td><a class="setMine" onclick="setMyComputer(this);">Set</td>
             <td><div class="nIcon j${item.icon}"></div>${item.name}</td>
             <td><select onchange="protoChange(this);" class="protoSel">
@@ -244,6 +257,7 @@ function updateNodesTable() {
           tr.classList.add('nodeRow');
       }
   });
+  resizeIframe();
 }
 function updateSelTable() {
   let dRows = document.querySelectorAll('.selRow');

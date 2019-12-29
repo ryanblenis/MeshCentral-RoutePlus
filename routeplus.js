@@ -16,11 +16,9 @@ module.exports.routeplus = function (parent) {
     obj.exports = [
       'onWebUIStartupEnd',
       'openSettings',
-      'addMap',
+      'goPageStart',
       'mapUpdate',
-      'removeMap',
-      'setMyComputer',
-      'myComputerUpdate'
+      'resizeContent'
     ];
     
     obj.server_startup = function() {
@@ -103,51 +101,32 @@ module.exports.routeplus = function (parent) {
         }
     };
     
-    obj.setMyComputer = function(args) {
-        meshserver.send({
-            'action': 'plugin',
-            'plugin': 'routeplus',
-            'pluginaction': 'setMyComputer',
-            'user': userinfo._id,
-            'node': args.node
-        });
+    obj.mapUpdate = function() {
+        // placeholder. If settings is never opened, updates sent to user throw console error.
     };
-    
-    obj.myComputerUpdate = function(state, msg) {
-        pluginHandler.routeplus.win.loadMyComputer(msg);
-    }
     
     obj.openSettings = function() {
-        pluginHandler.routeplus.win = window.open('/pluginadmin.ashx?pin=routeplus', '_blank');
-        pluginHandler.routeplus.win.nodes = nodes;
-        pluginHandler.routeplus.win.meshes = meshes;
-    }
-    
-    obj.addMap = function(map) {
-        meshserver.send({
-            'action': 'plugin',
-            'plugin': 'routeplus',
-            'pluginaction': 'addMap',
-            'user': userinfo._id,
-            'toNode': map.toNode,
-            'port': map.port
-        });
+        let spage = `<div id="routePlusSettings" style="height:100%;">
+            <div><div class="backButton" tabindex=0 onclick="go(2);" title="Back" onkeypress="if (event.key == 'Enter') go(2);"><div class="backButtonEx"></div></div></div>
+            <h1>My Server Plugins - <span>RoutePlus</span></h1>
+            <iframe id="routePlusiframe" src="/pluginadmin.ashx?pin=routeplus" frameBorder=0 style="width:100%;height:calc(100vh - 245px);max-height:calc(100vh - 245px)"></iframe>
+        </div>`;
+        QV('p2', 0);
+        xxcurrentView = null;
+        document.getElementById('column_l').insertAdjacentHTML( 'beforeend', spage );
     };
     
-    obj.mapUpdate = function(state, msg) {
-        pluginHandler.routeplus.win.loadMappings(msg);
+    obj.goPageStart = function(pageNum, event) {
+        let r = Q('routePlusSettings');
+        if (r) r.parentNode.removeChild(r);
     };
     
-    obj.removeMap = function(id) {
-        if (id != null) {
-            meshserver.send({
-                'action': 'plugin',
-                'plugin': 'routeplus',
-                'pluginaction': 'removeMap',
-                'id': id,
-                'user': userinfo._id
-            });
-        }
+    obj.resizeContent = function() {
+        var iFrame = document.getElementById('routePlusiframe');
+        var newHeight = 800;
+        var sHeight = iFrame.contentWindow.document.body.scrollHeight;
+        if (sHeight > newHeight) newHeight = sHeight;
+        iFrame.style.height = newHeight + 'px';
     };
     
     obj.handleAdminReq = function(req, res, user) {
