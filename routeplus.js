@@ -18,7 +18,12 @@ module.exports.routeplus = function (parent) {
       'openSettings',
       'goPageStart',
       'mapUpdate',
-      'resizeContent'
+      'resizeContent',
+      'onDeviceRefreshEnd',
+      'setUserRdpLinks',
+      'updateUserRdpLinks',
+      'dlRDPfile',
+      'updateRdpDeviceLinks'
     ];
     
     obj.server_startup = function() {
@@ -30,6 +35,42 @@ module.exports.routeplus = function (parent) {
         var ld = document.querySelectorAll('#p2AccountActions > p.mL')[0];
         var x = '<a onclick="pluginHandler.routeplus.openSettings();">RoutePlus</a>';
         ld.innerHTML += x;
+        pluginHandler.routeplus.updateUserRdpLinks();
+    };
+    
+    obj.updateUserRdpLinks = function() {
+        if (userinfo == null) { setTimeout(pluginHandler.routeplus.updateUserRdpLinks, 100); return; }
+        meshserver.send({
+            'action': 'plugin',
+            'plugin': 'routeplus',
+            'pluginaction': 'getRdpLinks',
+            'user': userinfo._id
+        });
+    };
+    
+    obj.updateRdpDeviceLinks = function() {
+        var links = document.querySelectorAll('.routePlusRdpLink');
+        if (links.length) {
+            links.forEach(function(l) {
+                l.parentNode.removeChild(l);
+            });
+        }
+        if (pluginHandler.routeplus.myRDPLinks != null) {
+            if (pluginHandler.routeplus.myRDPLinks[currentNode._id] != null) {
+                let l = pluginHandler.routeplus.myRDPLinks[currentNode._id];
+                var holderC = Q('p10html3'), holder = holderC.querySelectorAll('.p10html3left')[0];
+                let tpl = `<a href="#" class="routePlusRdpLink" onclick="pluginHandler.routeplus.dlRDPfile('${l}', '${currentNode.name}');">RoutePlus RDP</a>`;
+                holder.insertAdjacentHTML( 'beforeend', tpl );
+            }
+        }
+    };
+    
+    obj.onDeviceRefreshEnd = function() {
+        pluginHandler.routeplus.updateRdpDeviceLinks();
+    };
+    
+    obj.dlRDPfile = function(port, name) {
+        window.location = '/pluginadmin.ashx?pin=routeplus&dlrdpfile=1&port=' + port + '&name=' + encodeURIComponent(name);
     };
     
     obj.hook_userLoggedIn = function(user) {
@@ -105,6 +146,17 @@ module.exports.routeplus = function (parent) {
         // placeholder. If settings is never opened, updates sent to user throw console error.
     };
     
+    obj.setUserRdpLinks = function(state, msg) {
+        var links = msg.data;
+        pluginHandler.routeplus.myRDPLinks = {};
+        if (links.length) {
+            links.forEach(function(l) {
+                pluginHandler.routeplus.myRDPLinks[l.toNode] = l.localport;
+            });
+        }
+        pluginHandler.routeplus.updateRdpDeviceLinks();
+    };
+    
     obj.openSettings = function() {
         let spage = `<div id="routePlusSettings" style="height:100%;">
             <div><div class="backButton" tabindex=0 onclick="go(2);" title="Back" onkeypress="if (event.key == 'Enter') go(2);"><div class="backButtonEx"></div></div></div>
@@ -135,6 +187,12 @@ module.exports.routeplus = function (parent) {
             // admin wants admin, grant
             var vars = {};
             res.render('admin', vars);
+            return;
+        } else if (req.query.dlrdpfile == 1) {
+            res.setHeader('Content-disposition', 'attachment; filename=' + decodeURIComponent(req.query.name) + '.rdp');
+            res.setHeader('Content-type', 'text/plain');
+            //var fs = require('fs');
+            res.send('full address:s:127.0.0.1:' + req.query.port);
             return;
         } else {
             var vars = {};
@@ -315,6 +373,38 @@ module.exports.routeplus = function (parent) {
                     //obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'routeplus', pluginaction: 'mapUpdate', data: maps });
                 })
                 .catch(e => console.log('PLUGIN: RoutePlus: Error updating mapped port: ', e));
+            break;
+            case 'rdpLinkUpdate':
+                var upUser = null;
+                obj.db.update(command.mid, { rdplink: command.rdplink })
+                .then(() => {
+                    return obj.db.get(command.mid);
+                })
+                .then((mObj) => {
+                    mObj = mObj[0];
+                    upUser = mObj.user;
+                    return obj.db.getUserMaps(mObj.user);
+                })
+                .then(maps => {
+                    var x = { action: "plugin", plugin: "routeplus", method: "mapUpdate", data: maps};
+                    obj.sendUpdateToUser(maps[0].user, x);
+                })
+                .then(() => {
+                    return obj.db.getRdpLinksForUser(upUser)
+                })
+                .then(links => {
+                    var x = { action: "plugin", plugin: "routeplus", method: "setUserRdpLinks", data: links};
+                    obj.sendUpdateToUser(upUser, x);
+                })
+                .catch(e => console.log('PLUGIN: RoutePlus: Error updating RDP link setting: ', e));
+            break;
+            case 'getRdpLinks':
+                obj.db.getRdpLinksForUser(command.user)
+                .then(links => {
+                    var x = { action: "plugin", plugin: "routeplus", method: "setUserRdpLinks", data: links};
+                    obj.sendUpdateToUser(command.user, x);
+                })
+                .catch(e => console.log('PLUGIN: RoutePlus: Error updating RDP link maps: ', e));
             break;
             default:
                 console.log('PLUGIN: RoutePlus: unknown action');

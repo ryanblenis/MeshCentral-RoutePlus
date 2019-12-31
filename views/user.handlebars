@@ -116,7 +116,7 @@
     <div id="selectedContainer">
       <span class="header">Active Mappings</span>
       <table id="nodeSelTbl">
-          <tr><th>Node</th><th>Protocol</th><th>Dest Port</th><th>Source Port</th><th>Remove</th></tr>
+          <tr><th>Node</th><th>Protocol</th><th>Dest Port</th><th>Source Port</th><th title="Checking this box displays this as an RDP download link on the device home screen">RDP Link?</th><th>Remove</th></tr>
       </table>
     </div>
 </div>
@@ -214,6 +214,20 @@ function removeMap(el) {
         });
     }
 }
+function checkRdp(el) {
+    var row = el.parentNode.parentNode, 
+        mapId = row.getAttribute('x-data-id');
+    if (mapId != null) {
+        parent.meshserver.send({
+            'action': 'plugin',
+            'plugin': 'routeplus',
+            'pluginaction': 'rdpLinkUpdate',
+            'mid': mapId,
+            'user': parent.userinfo._id,
+            'rdplink': el.checked
+        });
+    }
+}
 function loadMappings(msg) {
     mappings = msg.data;
     updateSelTable();
@@ -271,10 +285,13 @@ function updateSelTable() {
           var item = {...i, ...{}};
           item.protoTxt = protoMap[item.port];
           if (item.protoTxt == 'undefined' || item.protoTxt == null) item.protoTxt = 'Custom';
+          item.checkedHtml = item.rdplink === true ? 'checked' : '';
+          if (item.protoTxt != 'Custom' && item.protoTxt != 'RDP') item.checkedHtml = 'disabled';
           let tpl = `<td><div class="nIcon j${nodeMap[item.toNode].icon}"></div>${nodeMap[item.toNode].name}</td>
             <td>${item.protoTxt}</td>
             <td>${item.port}</td>
             <td>${item.localport}</td>
+            <td><input type="checkbox" ${item.checkedHtml} onchange="checkRdp(this);"></td>
             <td><a class="removeMap" onclick="removeMap(this);">Remove</td>`;
           let tr = selTbl.insertRow(-1);
           tr.innerHTML = tpl;

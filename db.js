@@ -72,8 +72,12 @@ module.exports.CreateDB = function(meshserver) {
                 toNode: toNode,
                 port: port,
                 localport: 0,
-                auto: false
+                auto: false,
+                rdplink: port == 3389 ? true : false
             });
+        };
+        obj.getRdpLinksForUser = function(userId) {
+            return obj.file.find({ type: 'portMap', user: userId, rdplink: true }).toArray();
         };
         obj.checkDefaults = function() {
             
