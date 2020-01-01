@@ -4,9 +4,9 @@ Port routing plugin for the [MeshCentral2](https://github.com/Ylianst/MeshCentra
 
 ## Installation
 
- Pre-requisite: First, make sure you have plugins enabled for your MeshCentral installation:
+ Pre-requisite: First, make sure you have plugins enabled for your MeshCentral installation by adding this to the settings section of your './meshcentral/meshcentral-data/config.json' file:
 >     "plugins": {
->          enabled: true
+>          "enabled": true
 >     },
 Restart your MeshCentral server after making this change.
 
