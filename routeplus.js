@@ -33,7 +33,9 @@ module.exports.routeplus = function (parent) {
     
     obj.onWebUIStartupEnd = function() {
         var ld = document.querySelectorAll('#p2AccountActions > p.mL')[0];
-        var x = '<a onclick="pluginHandler.routeplus.openSettings();">RoutePlus</a>';
+        var as = Q('plugin_routePlusSettings');
+        if (as) as.parentNode.removeChild(as);
+        var x = '<span id="plugin_routePlusSettings" style="display: block;"><a onclick="pluginHandler.routeplus.openSettings();">RoutePlus</a></span>';
         ld.innerHTML += x;
         pluginHandler.routeplus.updateUserRdpLinks();
     };
