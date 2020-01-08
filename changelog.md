@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.0.5] - 2020-01-08
+### Fix
+- Cleanup console messages for currentNode not yet avail
+
 ## [0.0.4] - 2020-01-03
 ### Fix
 - Fix so that adding / removing multiple plugins only yields one RoutePlus settings link

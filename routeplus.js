@@ -58,7 +58,7 @@ module.exports.routeplus = function (parent) {
             });
         }
         if (pluginHandler.routeplus.myRDPLinks != null) {
-            if (pluginHandler.routeplus.myRDPLinks[currentNode._id] != null) {
+            if (currentNode != null && pluginHandler.routeplus.myRDPLinks[currentNode._id] != null) {
                 let l = pluginHandler.routeplus.myRDPLinks[currentNode._id];
                 var holderC = Q('p10html3'), holder = holderC.querySelectorAll('.p10html3left')[0];
                 let tpl = `<a href="#" class="routePlusRdpLink" onclick="pluginHandler.routeplus.dlRDPfile('${l}', '${currentNode.name}');">RoutePlus RDP</a>`;
