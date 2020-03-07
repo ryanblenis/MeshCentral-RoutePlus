@@ -13,6 +13,7 @@ module.exports.routeplus = function (parent) {
     obj.meshServer = parent.parent;
     obj.debug = obj.meshServer.debug;
     obj.onlineNodes = [];
+    obj.VIEWS = __dirname + '/views/';
     obj.exports = [
       'onWebUIStartupEnd',
       'openSettings',
@@ -188,7 +189,7 @@ module.exports.routeplus = function (parent) {
         {
             // admin wants admin, grant
             var vars = {};
-            res.render('admin', vars);
+            res.render(obj.VIEWS + 'admin', vars);
             return;
         } else if (req.query.dlrdpfile == 1) {
             res.setHeader('Content-disposition', 'attachment; filename=' + decodeURIComponent(req.query.name) + '.rdp');
@@ -213,7 +214,7 @@ module.exports.routeplus = function (parent) {
                 return Promise.resolve();
             })
             .then(() => {
-                res.render('user', vars);
+                res.render(obj.VIEWS + 'user', vars);
             })
             .catch(e => console.log('PLUGIN: RoutePlus: Error parsing user options. ', e));
             
