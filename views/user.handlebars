@@ -257,7 +257,11 @@ function updateNodesTable() {
   parent.nodes.forEach(function(i) {
       var item = {...i, ...{}};
       if (item.mtype == 2) {
-          item.meshName = parent.meshes[item['meshid']].name;
+          /*if (item['meshnamel'] == '*') {
+              item.meshName = 'Individual Devices';
+          } else {
+              item.meshName = parent.meshes[item['meshid']].name;
+          }*/
           let tpl = `<td><a class="setMine" onclick="setMyComputer(this);">Set</td>
             <td><div class="nIcon j${item.icon}"></div>${item.name}</td>
             <td><select onchange="protoChange(this);" class="protoSel">
