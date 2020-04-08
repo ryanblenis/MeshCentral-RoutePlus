@@ -24,7 +24,8 @@ module.exports.routeplus = function (parent) {
       'setUserRdpLinks',
       'updateUserRdpLinks',
       'dlRDPfile',
-      'updateRdpDeviceLinks'
+      'updateRdpDeviceLinks',
+      'cantMap'
     ];
     
     obj.server_startup = function() {
@@ -134,7 +135,8 @@ module.exports.routeplus = function (parent) {
             rauth: rcookie,
             nodeid: map.toNode,
             remoteport: map.port,
-            localport: map.localport
+            localport: map.localport,
+            forceSrcPort: map.forceSrcPort ? map.forceSrcPort : false
         };
         //obj.debug('PLUGIN', 'RoutePlus', 'Mapping route to ', map.toNode);
         try { 
@@ -147,6 +149,14 @@ module.exports.routeplus = function (parent) {
     
     obj.mapUpdate = function() {
         // placeholder. If settings is never opened, updates sent to user throw console error.
+    };
+    
+    obj.cantMap = function(e, msg) {
+        if (pluginHandler.routeplus.cantMapStore == null) pluginHandler.routeplus.cantMapStore = [];
+        pluginHandler.routeplus.cantMapStore.push(msg.mapId);
+        try {
+            pluginHandler.routeplus.cantMapIn();
+        } catch (e) { }
     };
     
     obj.setUserRdpLinks = function(state, msg) {
@@ -279,7 +289,7 @@ module.exports.routeplus = function (parent) {
         switch (command.pluginaction) {
             case 'addMap':
                 var newMapId = null, myComp = null;
-                obj.db.addMap(command.user, command.toNode, command.port)
+                obj.db.addMap(command.user, command.toNode, command.port, command.srcport, command.forceSrcPort)
                 .then((newMapInfo) => {
                     newMapId = newMapInfo.insertedId;
                     return obj.db.getUserMaps(command.user);
@@ -376,6 +386,15 @@ module.exports.routeplus = function (parent) {
                     //obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'routeplus', pluginaction: 'mapUpdate', data: maps });
                 })
                 .catch(e => console.log('PLUGIN: RoutePlus: Error updating mapped port: ', e));
+            break;
+            case 'cantMapPort':
+                obj.debug('PLUGIN', 'RoutePlus', 'Client cannot map forced port for id: ' + command.mid);
+                obj.db.get(command.mid)
+                .then(maps => {
+                    var x = { action: "plugin", plugin: "routeplus", method: "cantMap", mapId: maps[0]._id };
+                    obj.sendUpdateToUser(maps[0].user, x);
+                })
+                .catch(e => console.log('PLUGIN: RoutePlus: CantMap Reporting Error: ', e));
             break;
             case 'rdpLinkUpdate':
                 var upUser = null;

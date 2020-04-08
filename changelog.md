@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.0] - 2020-04-08
+### Added
+- Ability to set a static source port. If the chosen port is unavailable (e.g. in use), the mapping will be disabled until it is free and the map is reinstantiated.
+### Fixed
+- Added rPi icon option (was previously displaying blank)
+- Stability fixes for keeping the same randomly generated port. This should reduce the number of times the port is changed for some users.
+
 ## [0.0.7] - 2020-04-05
 ### Fixed
 - Remove unused call for mesh name that broke support for the new "Individual Device Permissions" users

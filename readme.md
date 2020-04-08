@@ -19,12 +19,13 @@ This plugin allows users to map local ports to remote ports on machines through 
 - Supports multiple ports and endpoints simultaneously
 - Settings are saved on the MeshCentral server
 - Users can re-map ports and computers on the fly
-- Port forwarding is activated on login to MeshCentral
+- Port forwarding is activated upon login to MeshCentral
 
 ## Usage Notes
 - Active port maps can always be viewed and changed under "My Account" > "Account Actions" > "RoutePlus"
 - Tunnels are created in the same way that MeshCmd creates them, and subject to the same authentication.
-- Source ports are randomly generated, however they use a "best efforts" approach to keep the same source port for as long as you have the mapping in place. If the port is found to be in use, it will be re-mapped (and can always be viewed in the settings)
+- Source ports are, by default, randomly generated, however they use a "best efforts" approach to keep the same source port for as long as you have the mapping in place. If the port is found to be in use, it will be re-mapped (and can always be viewed in the settings)
+- Source port can now be set to a static port, however if that port is unavailable on the host (e.g. in use) no other port will be assigned.
 
 ## Getting Started
 1. Head over to "My Account" > "Account Actions" > "RoutePlus"

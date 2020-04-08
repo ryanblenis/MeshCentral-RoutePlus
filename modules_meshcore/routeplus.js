@@ -84,13 +84,15 @@ function consoleaction(args, rights, sessionid, parent) {
             }
             if (waitTimer[args.mid] != null) clearTimeout(waitTimer[args.mid]);
             dbg('Starting Route');
+            //dbg('Got: ' + JSON.stringify(args));
             latestAuthCookie = args.rauth;
             var r = new RoutePlusRoute();
             var settings = {
                 serverurl: mesh.ServerUrl.replace('agent.ashx', 'meshrelay.ashx'),
                 remotenodeid: args.nodeid,
                 remoteport: args.remoteport,
-                localport: args.localport == null ? 0 : args.localport
+                localport: args.localport == null ? 0 : args.localport,
+                forceSrcPort: args.forceSrcPort
             };
             var was_error = false;
             try {
@@ -98,7 +100,20 @@ function consoleaction(args, rights, sessionid, parent) {
                 routeTrack[args.mid] = r;
             } catch (e) { was_error = true; }
             
-            if (was_error) { // probably port in use, try again with new port
+            if (was_error && args.forceSrcPort == true) {
+                dbg('Source port is forced, but unavailable. Not mapping. (port: ' + args.localport + ')');
+                mesh.SendCommand({ 
+                    "action": "plugin", 
+                    "plugin": "routeplus",
+                    "pluginaction": "cantMapPort",
+                    "sessionid": _sessionid,
+                    "tag": "console",
+                    "mid": args.mid
+                });
+                return;
+            }
+            
+            if (was_error && args.forceSrcPort == false) { // probably port in use, try again with new port
                 was_error = false;
                 settings.localport = 0;
                 try {
@@ -122,8 +137,9 @@ function consoleaction(args, rights, sessionid, parent) {
             }
         break;
         case 'endRoute':
+            dbg('Attempting to end route for ' + args.mid);
             if (routeTrack[args.mid] != null && routeTrack[args.mid] != 'undefined') {
-                dbg('Ending route for ' + args.mid)
+                dbg('Ending route for ' + args.mid);
                 routeTrack[args.mid].tcpserver.close();
                 delete routeTrack[args.mid];
             }

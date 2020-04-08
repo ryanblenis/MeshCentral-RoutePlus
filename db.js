@@ -65,13 +65,14 @@ module.exports.CreateDB = function(meshserver) {
                 }
             })
         };
-        obj.addMap = function(user, toNode, port) {
+        obj.addMap = function(user, toNode, port, srcport, forceSrcPort) {
             return obj.file.insertOne( {
                 type: 'portMap',
                 user: user,
                 toNode: toNode,
                 port: port,
-                localport: 0,
+                localport: srcport == '' ? 0 : srcport,
+                forceSrcPort: forceSrcPort,
                 auto: false,
                 rdplink: port == 3389 ? true : false
             });

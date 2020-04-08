@@ -102,11 +102,28 @@
     #myCompC {
         padding: 30px;
     }
-    .otherInp {
+    .otherInp, .sourcePortInp {
         width: 50px;
+    }
+    #sourcePortWarning {
+        color: white;
+        padding: 20px;
+        border: 1px solid darkred;
+        position: fixed;
+        margin-top: -150px;
+        text-align: center;
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQYV2NoaGj4BQAFfwJ7kW1UpQAAAABJRU5ErkJggg==);
+    }
+    .red {
+        color: red;
     }
 </style>
 <body onload="doOnLoad();">
+<div id="sourcePortWarning" style="display:none;">
+    Warning: <br />
+    Setting a specific source port means that if that port is unavailable, the service will not be made available.<br />
+    Leave this blank for a randomly assigned port.
+</div>
 <div id="routePlusUser">
     <div id="myCompC">
         <span class="iheader">My Computer:</span> 
@@ -116,7 +133,7 @@
     <div id="allContainer">
         <span class="header">Node Selection</span>
         <table id="nodeTbl">
-            <tr><th>Set as Mine</th><th>Node</th><th>Protocol</th><th>Port</th><th>Add</th></tr>
+            <tr><th>Set as Mine</th><th>Node</th><th>Protocol</th><th>Dest Port</th><th>Source Port</th><th>Add</th></tr>
         </table>
     </div>
     <div id="selectedContainer">
@@ -187,7 +204,8 @@ function addMap(el) {
         return;
     }
     var row = el.parentNode.parentNode, 
-        port = row.querySelectorAll('.otherInp')[0], 
+        port = row.querySelectorAll('.otherInp')[0],
+        srcport = row.querySelectorAll('.sourcePortInp')[0],
         proto = row.querySelectorAll('.protoSel')[0],
         nodeId = row.getAttribute('x-data-id');
     if (proto.value == '') {
@@ -200,12 +218,18 @@ function addMap(el) {
         'pluginaction': 'addMap',
         'user': parent.userinfo._id,
         'toNode': nodeId,
-        'port': port.value
+        'port': parseInt(port.value),
+        'srcport': parseInt(srcport.value),
+        'forceSrcPort': srcport.value == '' ? false : true
     });
 }
 
 parent.pluginHandler.routeplus.mapUpdate = function(state, msg) {
     loadMappings(msg);
+};
+if (parent.pluginHandler.routeplus.cantMapStore == null) parent.pluginHandler.routeplus.cantMapStore = [];
+parent.pluginHandler.routeplus.cantMapIn = function() {
+    updateSelTable();
 };
 function removeMap(el) {
     var row = el.parentNode.parentNode, 
@@ -274,6 +298,7 @@ function updateNodesTable() {
                 ${protoOpts}
             </select></td>
             <td><input class="otherInp" type="text" value="" disabled></td>
+            <td><input class="sourcePortInp" type="text" value=""></td>
             <td><a class="addMap" onclick="addMap(this);">Add</td>`;
           let tr = nodeTbl.insertRow(-1);
           tr.innerHTML = tpl;
@@ -281,6 +306,17 @@ function updateNodesTable() {
           tr.classList.add('nodeRow');
       }
   });
+  var warnings = nodeTbl.getElementsByClassName("sourcePortInp");
+  var spw = Q('sourcePortWarning');
+  for (var i = 0; i < warnings.length; i++) {
+    warnings[i].addEventListener("focus", function(e) {
+        this.parentNode.appendChild( spw );
+        spw.style.display = '';
+    });
+    warnings[i].addEventListener("blur", function(e) {
+        spw.style.display = 'none';
+    });
+  }
   resizeIframe();
 }
 function updateSelTable() {
@@ -293,6 +329,12 @@ function updateSelTable() {
   if (mappings != null && mappings.length) {
       mappings.forEach(function(i) {
           var item = {...i, ...{}};
+          if (parent.pluginHandler.routeplus.cantMapStore.indexOf(item._id) >= 0) {
+              item.warningHtml1 = '<span title="Port is forced but in use, cannot start!" class="red">';
+              item.warningHtml2 = '</span>';
+          } else {
+              item.warningHtml1 = item.warningHtml2 = '';
+          }
           item.protoTxt = protoMap[item.port];
           if (item.protoTxt == 'undefined' || item.protoTxt == null) item.protoTxt = 'Custom';
           item.checkedHtml = item.rdplink === true ? 'checked' : '';
@@ -300,7 +342,7 @@ function updateSelTable() {
           let tpl = `<td><div class="nIcon j${nodeMap[item.toNode].icon}"></div>${nodeMap[item.toNode].name}</td>
             <td>${item.protoTxt}</td>
             <td>${item.port}</td>
-            <td>${item.localport}</td>
+            <td>${item.warningHtml1}${item.localport}${item.warningHtml2}</td>
             <td><input type="checkbox" ${item.checkedHtml} onchange="checkRdp(this);"></td>
             <td><a class="removeMap" onclick="removeMap(this);">Remove</td>`;
           let tr = selTbl.insertRow(-1);
