@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.2] - 2020-04-08
+### Fixed
+- Changed display so that computer list and mappings do not overlap on smaller resolutions
+
 ## [0.1.1] - 2020-04-08
 ### Added
 - Added destination IP (target IP) for accessing remote node network
