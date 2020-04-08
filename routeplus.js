@@ -134,6 +134,7 @@ module.exports.routeplus = function (parent) {
             mid: map._id,
             rauth: rcookie,
             nodeid: map.toNode,
+            remotetarget: map.toIP,
             remoteport: map.port,
             localport: map.localport,
             forceSrcPort: map.forceSrcPort ? map.forceSrcPort : false
@@ -289,7 +290,7 @@ module.exports.routeplus = function (parent) {
         switch (command.pluginaction) {
             case 'addMap':
                 var newMapId = null, myComp = null;
-                obj.db.addMap(command.user, command.toNode, command.port, command.srcport, command.forceSrcPort)
+                obj.db.addMap(command.user, command.toNode, command.port, command.srcport, command.forceSrcPort, command.toIP)
                 .then((newMapInfo) => {
                     newMapId = newMapInfo.insertedId;
                     return obj.db.getUserMaps(command.user);

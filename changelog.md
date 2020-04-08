@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.1] - 2020-04-08
+### Added
+- Added destination IP (target IP) for accessing remote node network
+
 ## [0.1.0] - 2020-04-08
 ### Added
 - Ability to set a static source port. If the chosen port is unavailable (e.g. in use), the mapping will be disabled until it is free and the map is reinstantiated.

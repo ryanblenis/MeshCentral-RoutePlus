@@ -90,6 +90,7 @@ function consoleaction(args, rights, sessionid, parent) {
             var settings = {
                 serverurl: mesh.ServerUrl.replace('agent.ashx', 'meshrelay.ashx'),
                 remotenodeid: args.nodeid,
+                remotetarget: args.remotetarget,
                 remoteport: args.remoteport,
                 localport: args.localport == null ? 0 : args.localport,
                 forceSrcPort: args.forceSrcPort

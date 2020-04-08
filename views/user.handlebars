@@ -133,13 +133,13 @@
     <div id="allContainer">
         <span class="header">Node Selection</span>
         <table id="nodeTbl">
-            <tr><th>Set as Mine</th><th>Node</th><th>Protocol</th><th>Dest Port</th><th>Source Port</th><th>Add</th></tr>
+            <tr><th>Set as Mine</th><th>Node</th><th>Protocol</th><th>Dest IP</th><th>Dest Port</th><th>Source Port</th><th>Add</th></tr>
         </table>
     </div>
     <div id="selectedContainer">
       <span class="header">Active Mappings</span>
       <table id="nodeSelTbl">
-          <tr><th>Node</th><th>Protocol</th><th>Dest Port</th><th>Source Port</th><th title="Checking this box displays this as an RDP download link on the device home screen">RDP Link?</th><th>Remove</th></tr>
+          <tr><th>Node</th><th>Protocol</th><th>Dest IP</th><th>Dest Port</th><th>Source Port</th><th title="Checking this box displays this as an RDP download link on the device home screen">RDP Link?</th><th>Remove</th></tr>
       </table>
     </div>
 </div>
@@ -204,6 +204,7 @@ function addMap(el) {
         return;
     }
     var row = el.parentNode.parentNode, 
+        destIP = row.querySelectorAll('.destIP')[0],
         port = row.querySelectorAll('.otherInp')[0],
         srcport = row.querySelectorAll('.sourcePortInp')[0],
         proto = row.querySelectorAll('.protoSel')[0],
@@ -218,6 +219,7 @@ function addMap(el) {
         'pluginaction': 'addMap',
         'user': parent.userinfo._id,
         'toNode': nodeId,
+        'toIP': destIP.value == '' ? null : destIP.value,
         'port': parseInt(port.value),
         'srcport': parseInt(srcport.value),
         'forceSrcPort': srcport.value == '' ? false : true
@@ -297,6 +299,7 @@ function updateNodesTable() {
             <td><select onchange="protoChange(this);" class="protoSel">
                 ${protoOpts}
             </select></td>
+            <td><input class="destIP" type="text" value="" placeholder="blank for default"></td>
             <td><input class="otherInp" type="text" value="" disabled></td>
             <td><input class="sourcePortInp" type="text" value=""></td>
             <td><a class="addMap" onclick="addMap(this);">Add</td>`;
@@ -335,12 +338,15 @@ function updateSelTable() {
           } else {
               item.warningHtml1 = item.warningHtml2 = '';
           }
+          if (item.toIP == null) item.toIPTxt = 'localhost';
+          else item.toIPTxt = item.toIP;
           item.protoTxt = protoMap[item.port];
           if (item.protoTxt == 'undefined' || item.protoTxt == null) item.protoTxt = 'Custom';
           item.checkedHtml = item.rdplink === true ? 'checked' : '';
           if (item.protoTxt != 'Custom' && item.protoTxt != 'RDP') item.checkedHtml = 'disabled';
           let tpl = `<td><div class="nIcon j${nodeMap[item.toNode].icon}"></div>${nodeMap[item.toNode].name}</td>
             <td>${item.protoTxt}</td>
+            <td>${item.toIPTxt}</td>
             <td>${item.port}</td>
             <td>${item.warningHtml1}${item.localport}${item.warningHtml2}</td>
             <td><input type="checkbox" ${item.checkedHtml} onchange="checkRdp(this);"></td>

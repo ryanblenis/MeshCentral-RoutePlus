@@ -65,11 +65,12 @@ module.exports.CreateDB = function(meshserver) {
                 }
             })
         };
-        obj.addMap = function(user, toNode, port, srcport, forceSrcPort) {
+        obj.addMap = function(user, toNode, port, srcport, forceSrcPort, toIP) {
             return obj.file.insertOne( {
                 type: 'portMap',
                 user: user,
                 toNode: toNode,
+                toIP: toIP,
                 port: port,
                 localport: srcport == '' ? 0 : srcport,
                 forceSrcPort: forceSrcPort,
