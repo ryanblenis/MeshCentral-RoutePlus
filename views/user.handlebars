@@ -228,6 +228,7 @@ function addMap(el) {
 
 parent.pluginHandler.routeplus.mapUpdate = function(state, msg) {
     loadMappings(msg);
+    parent.pluginHandler.routeplus.updateRdpDeviceLinks();
 };
 if (parent.pluginHandler.routeplus.cantMapStore == null) parent.pluginHandler.routeplus.cantMapStore = [];
 parent.pluginHandler.routeplus.cantMapIn = function() {
@@ -235,13 +236,16 @@ parent.pluginHandler.routeplus.cantMapIn = function() {
 };
 function removeMap(el) {
     var row = el.parentNode.parentNode, 
-        nodeId = row.getAttribute('x-data-id');
+        mapId = row.getAttribute('x-data-id'),
+        nodeId = row.getAttribute('x-data-nodeId');
+    
     if (nodeId != null) {
+        delete parent.pluginHandler.routeplus.myRDPLinks[nodeId];
         parent.meshserver.send({
             'action': 'plugin',
             'plugin': 'routeplus',
             'pluginaction': 'removeMap',
-            'id': nodeId,
+            'id': mapId,
             'user': parent.userinfo._id
         });
     }
@@ -354,6 +358,7 @@ function updateSelTable() {
           let tr = selTbl.insertRow(-1);
           tr.innerHTML = tpl;
           tr.setAttribute('x-data-id', item._id);
+          tr.setAttribute('x-data-nodeId', item.toNode);
           tr.classList.add('selRow');
       });
     }

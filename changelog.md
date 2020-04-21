@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.3] - 2020-04-21
+### Fixed
+- RDP file download issue in FireFox for some OS's would show "Server Disconnected"
+- Make "RoutePlus RDP" link on devices add/remove on current device without refreshing the page or switching devices first
+
 ## [0.1.2] - 2020-04-08
 ### Fixed
 - Changed display so that computer list and mappings do not overlap on smaller resolutions

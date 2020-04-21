@@ -1,7 +1,7 @@
 {
   "name": "RoutePlus",
   "shortName": "routeplus",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Ryan Blenis",
   "description": "Route ports directly from and to any node.",
   "hasAdminPanel": false,

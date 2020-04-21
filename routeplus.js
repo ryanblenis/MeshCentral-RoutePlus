@@ -386,6 +386,13 @@ module.exports.routeplus = function (parent) {
                     //var targets = ['*', 'server-users'];
                     //obj.meshServer.DispatchEvent(targets, obj, { action: 'plugin', plugin: 'routeplus', pluginaction: 'mapUpdate', data: maps });
                 })
+                .then(() => {
+                    return obj.db.getRdpLinksForUser(upUser)
+                })
+                .then(links => {
+                    var x = { action: "plugin", plugin: "routeplus", method: "setUserRdpLinks", data: links};
+                    obj.sendUpdateToUser(upUser, x);
+                })
                 .catch(e => console.log('PLUGIN: RoutePlus: Error updating mapped port: ', e));
             break;
             case 'cantMapPort':
