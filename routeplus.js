@@ -74,7 +74,13 @@ module.exports.routeplus = function (parent) {
     };
     
     obj.dlRDPfile = function(port, name) {
-        window.location = '/pluginadmin.ashx?pin=routeplus&dlrdpfile=1&port=' + port + '&name=' + encodeURIComponent(name);
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + 'full address:s:127.0.0.1:' + port);
+        element.setAttribute('download', encodeURIComponent(name) + '.rdp');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
     };
     
     obj.hook_userLoggedIn = function(user) {
@@ -201,12 +207,6 @@ module.exports.routeplus = function (parent) {
             // admin wants admin, grant
             var vars = {};
             res.render(obj.VIEWS + 'admin', vars);
-            return;
-        } else if (req.query.dlrdpfile == 1) {
-            res.setHeader('Content-disposition', 'attachment; filename=' + decodeURIComponent(req.query.name) + '.rdp');
-            res.setHeader('Content-type', 'text/plain');
-            //var fs = require('fs');
-            res.send('full address:s:127.0.0.1:' + req.query.port);
             return;
         } else {
             var vars = {};
