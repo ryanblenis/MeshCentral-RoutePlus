@@ -110,7 +110,11 @@ module.exports.CreateDB = function(meshserver) {
               }
           });
           
-          formatId = require('mongodb').ObjectID;
+          if (typeof require('mongodb').ObjectID == 'function') {
+              formatId = require('mongodb').ObjectID;
+          } else {
+              formatId = require('mongodb').ObjectId;
+          }
           obj.initFunctions();
     });  
     } else { // use NeDb

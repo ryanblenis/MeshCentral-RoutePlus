@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.4] - 2021-10-07
+### Fixed
+- Compatibility with MeshCentral > 0.9.7
+
 ## [0.1.3] - 2020-04-21
 ### Fixed
 - RDP file download issue in FireFox for some OS's would show "Server Disconnected"
