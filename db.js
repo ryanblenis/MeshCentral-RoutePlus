@@ -12,6 +12,7 @@ var formatId = null;
 module.exports.CreateDB = function(meshserver) {
     var obj = {};
     var NEMongo = require(__dirname + '/nemongo.js');
+    module.paths.push(require('path').join(meshserver.parentpath, 'node_modules')); // we need to push the node_modules folder for nedb
     obj.dbVersion = 1;
     
     obj.initFunctions = function () {
@@ -117,10 +118,14 @@ module.exports.CreateDB = function(meshserver) {
           obj.initFunctions();
     });  
     } else { // use NeDb
-        Datastore = require('@yetzt/nedb');
+        try { Datastore = require('@seald-io/nedb'); } catch (ex) { } // This is the NeDB with Node 23 support.
+        if (Datastore == null) {
+            try { Datastore = require('@yetzt/nedb'); } catch (ex) { } // This is the NeDB with fixed security dependencies.
+            if (Datastore == null) { Datastore = require('nedb'); } // So not to break any existing installations, if the old NeDB is present, use it.
+        }
         if (obj.filex == null) {
             obj.filex = new Datastore({ filename: meshserver.getConfigFilePath('plugin-routeplus.db'), autoload: true });
-            obj.filex.persistence.setAutocompactionInterval(40000);
+            obj.filex.setAutocompactionInterval(40000);
             obj.filex.ensureIndex({ fieldName: 'user' });
         }
         obj.file = new NEMongo(obj.filex);
