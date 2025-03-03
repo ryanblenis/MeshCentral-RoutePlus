@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Known Issues]
 - None. Please feel free to submit an issue via [GitHub](https://github.com/ryanblenis/MeshCentral-RoutePlus) if you find anything.
 
+## [0.1.7] - 2025-03-03
+### Fixed
+- Merge PR fixing potential MeshCentral ping control channel interference issues (PR#22; thanks Daniel)
+
 ## [0.1.6] - 2025-01-14
 ### Fixed
 - Merge PR fixing MeshCentral 1.1.35+ compatibility
