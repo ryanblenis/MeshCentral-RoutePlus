@@ -187,7 +187,7 @@ function RoutePlusRoute() {
             c.on('end', function () { disconnectTunnel(this, this.websocket, "Client closed"); });
             c.pause();
             try {
-                var options = http.parseUri(rObj.settings.serverurl + '?auth=' + latestAuthCookie + '&nodeid=' + rObj.settings.remotenodeid + '&tcpport=' + rObj.settings.remoteport + (rObj.settings.remotetarget == null ? '' : '&tcpaddr=' + rObj.settings.remotetarget));
+                var options = http.parseUri(rObj.settings.serverurl + '?noping=1&auth=' + latestAuthCookie + '&nodeid=' + rObj.settings.remotenodeid + '&tcpport=' + rObj.settings.remoteport + (rObj.settings.remotetarget == null ? '' : '&tcpaddr=' + rObj.settings.remotetarget));
             } catch (e) { dbg("Unable to parse \"serverUrl\"." + e); return; }
             options.checkServerIdentity = this.onVerifyServer;
             options.rejectUnauthorized = false;
